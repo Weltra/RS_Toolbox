@@ -1,3 +1,8 @@
+"""
+time: 2022-09-06
+coder: welt
+reference:参考了知乎王振庆大佬的代码，将预测部分进行了替换
+"""
 import numpy as np
 import os
 
