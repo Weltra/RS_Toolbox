@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 通过GDAL读取栅格影像
-filename = "Extract_terl.tif"
+filename = "out_terlk.tif"
 dataset = gdal.Open(filename)
 im_width = dataset.RasterXSize
 im_height = dataset.RasterYSize

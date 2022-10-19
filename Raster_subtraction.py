@@ -36,6 +36,7 @@ def subtract_raster(DEM_standard_path, DEM_path, out_path):
 			if DEM[row, col] > 0:
 				Result[row, col] = DEM_standard[row, col] - DEM[row, col]
 
+
 	Result_DEM.GetRasterBand(1).WriteArray(Result)
 
 
@@ -43,5 +44,5 @@ if __name__ == '__main__':
 	# 修改路径
 	Standard_DEM_Path = r"dem_standard.tif"  # 标准的DEM
 	MY_DEM_Path = r"Extract_terl.tif"  # 由点，线，TIN得到的DEM
-	OutTif = r"out_terlk.tif"
+	OutTif = r"out_TIN.tif"
 	subtract_raster(Standard_DEM_Path, MY_DEM_Path, OutTif)
