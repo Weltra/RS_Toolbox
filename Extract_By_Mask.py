@@ -16,6 +16,7 @@ def extract_by_mask(input_path, input_shape_path, output_path):
 	:param output_path:
 	:return:
 	"""
+	# 实例化一个Warp对象
 	ds = gdal.Warp(output_path,
 	               input_path,
 	               format='GTiff',
