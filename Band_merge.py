@@ -1,11 +1,10 @@
+# -*- coding: utf-8 -*-
 """
-time: 2022-06-12
-coder: welt
-reference:
-landsat 8常用合成：
-Natural color(432)：真彩色。接近地物真实色彩，图像平淡，色调灰暗
-Land/Water(564): 陆地/水体。 红外波段与红色波段合成，水体边界清晰，利于海岸识别；植被有较好的显示，但不便于区分拘役植被类别
-Color Infrared (vegetation, 543): 红外彩色，又称标准假彩色。地物色彩鲜明，有利于植被（红色）分类，水体
+PROJECT_NAME: RS_Toolbox 
+FILE_NAME: Band_merge 
+AUTHOR: welt 
+E_MAIL: tjlwelt@foxmail.com
+DATE: 2022/10/20 
 """
 
 import os
