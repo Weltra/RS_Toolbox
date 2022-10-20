@@ -19,14 +19,7 @@ def get_dataset_band(bandfile):
 	return [input_dataset, input_band]
 
 
-def main():
-	# 1. 定义默认路径并导入文件
-	os.chdir(r'D:\Random_Forest\data')
-	bandfile_1 = '202004.TIF'
-	bandfile_2 = '202005.TIF'
-	bandfile_3 = '202006.TIF'
-	bandfile = [bandfile_1, bandfile_2, bandfile_3]
-
+def band_merge():
 	# 2. 读取dataset并获取band值
 	inputdata = []
 	for i in range(3):
@@ -52,4 +45,9 @@ def main():
 
 
 if __name__ == '__main__':
-	main()
+	# 1. 定义默认路径并导入文件
+	os.chdir(r'D:\Random_Forest\data')
+	bandfile_1 = '202004.TIF'
+	bandfile_2 = '202005.TIF'
+	bandfile_3 = '202006.TIF'
+	bandfile = [bandfile_1, bandfile_2, bandfile_3]
