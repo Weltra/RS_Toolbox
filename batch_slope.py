@@ -1,8 +1,16 @@
+# -*- coding: utf-8 -*-
+"""
+PROJECT_NAME: RS_Toolbox 
+FILE_NAME: batch_slope 
+AUTHOR: welt 
+E_MAIL: tjlwelt@foxmail.com
+DATE: 2022/10/31 
+"""
+
 from osgeo import gdal
 import os
 import sys
-from osgeo import osr, gdalconst
-import math
+from osgeo import osr
 import numpy as np
 
 
@@ -67,15 +75,17 @@ def convertProjection(data, filename, dx):
 	return dataOut
 
 
-def Slope(DEMFilename, slopeFilename, aspectFilename):
+def slope(DEMFilename, slopeFilename):
 	gdal.AllRegister()
 
 	data = gdal.Open(DEMFilename, gdal.GA_ReadOnly)
+
 	if data is None:
 		print('Cannot open this file:' + DEMFilename)
 		sys.exit(1)
+	geotrans = list(data.GetGeoTransform())
 
-	dx = 5  # 设置分辨率
+	dx = geotrans[1]
 
 	# 投影变换
 	projData = convertProjection(data, DEMFilename, dx)
@@ -87,58 +97,30 @@ def Slope(DEMFilename, slopeFilename, aspectFilename):
 	Sx, Sy = calcFiniteSlopes(gridNew, dx)
 	# 坡度计算
 	slope = np.arctan(np.sqrt(Sx ** 2 + Sy ** 2)) * 57.29578
-
-	# 坡向计算
-	aspect = np.ones([Sx.shape[0], Sx.shape[1]]).astype(np.float32)
-	for i in range(Sx.shape[0]):
-		for j in range(Sy.shape[1]):
-			sx = float(Sx[i, j])
-			sy = float(Sy[i, j])
-			if (sx == 0.0) & (sy == 0.0):
-				aspect[i, j] = -1
-			elif sx == 0.0:
-				if sy > 0.0:
-					aspect[i, j] = 0.0
-				else:
-					aspect[i, j] = 180.0
-			elif sy == 0.0:
-				if sx > 0.0:
-					aspect[i, j] = 90.0
-				else:
-					aspect[i, j] = 270.0
-			else:
-				aspect[i, j] = float(math.atan2(sy, sx) * 57.29578)
-				if aspect[i, j] < 0.0:
-					aspect[i, j] = 90.0 - aspect[i, j]
-				elif aspect[i, j] > 90.0:
-					aspect[i, j] = 360.0 - aspect[i, j] + 90.0
-				else:
-					aspect[i, j] = 90.0 - aspect[i, j]
-
 	# 输出坡度坡向文件
 	driver = gdal.GetDriverByName('GTiff')
 	if os.path.exists(slopeFilename):
 		os.remove(slopeFilename)
-	if os.path.exists(aspectFilename):
-		os.remove(aspectFilename)
 
 	ds1 = driver.Create(slopeFilename, slope.shape[1], slope.shape[0], 1, gdal.GDT_Float32)
 	ds1.SetGeoTransform(geotransform)
 	ds1.SetProjection(projinfo)
 	band = ds1.GetRasterBand(1)
 	band.WriteArray(slope, 0, 0)
-
-	ds2 = driver.Create(aspectFilename, aspect.shape[1], aspect.shape[0], 1, gdal.GDT_Float32)
-	ds2.SetGeoTransform(geotransform)
-	ds2.SetProjection(projinfo)
-	band = ds2.GetRasterBand(1)
-	band.WriteArray(aspect, 0, 0)
 	del ds1
-	del ds2
+
+
+def main():
+	dem_path = 'D:/RS_Toolbox/examples'
+	slope_path = 'D:/RS_Toolbox'
+	filelist = os.listdir(dem_path)
+	for file in filelist:
+		(filename, extension) = os.path.splitext(file)
+		outname = filename + '_slope' + extension
+		dem_file = dem_path + '/' + file
+		slopefile = slope_path + '/' + outname
+		slope(dem_file, slopefile)
 
 
 if __name__ == '__main__':
-	DEMFilename = 'D:/RS_Toolbox/dem-grid.tif'
-	slopeFilename = 'D:/RS_Toolbox/Slope.tif'
-	aspectFilename = 'D:/RS_Toolbox/Aspect.tif'
-	Slope(DEMFilename, slopeFilename, aspectFilename)
+	main()
