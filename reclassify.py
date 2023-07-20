@@ -9,6 +9,7 @@ DATE: 2022/10/31
 
 from osgeo import gdal
 from tqdm import tqdm
+import numpy as np
 
 def main():
 	data_path = 'djk_dem25.tif'
@@ -29,12 +30,13 @@ def main():
 
 	dst_ds1.SetGeoTransform(geotransform)
 	dst_ds1.SetProjection(projinfo)
-	d0 = data
-	reclassdata = d0 * 0
+	reclassdata = data
 	# 开始计算
 	for row in tqdm(range(rows)):
 		for col in range(colmns):
-			if data[row][col] < 300:
+			if data[row][col] < 0:
+				reclassdata[row][col] = -9999  # 设置NaN值
+			if 0 <= data[row][col] < 300:
 				reclassdata[row][col] = 1
 			elif 500 > data[row][col] >= 300:
 				reclassdata[row][col] = 2
@@ -44,8 +46,6 @@ def main():
 				reclassdata[row][col] = 4
 			elif 1100 <= data[row][col]:
 				reclassdata[row][col] = 5
-			else:
-				reclassdata[row][col] = 0
 
 	dst_ds1.GetRasterBand(1).WriteArray(reclassdata)
 

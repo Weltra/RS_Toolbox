@@ -101,7 +101,10 @@ def EVI_calculte(S2_file, EVI_output_file):
 
 
 if __name__ == "__main__":
-	Image_path = ''
-	NDVI_path = ''
-	EVI_path = ''
-	SAVI_path = ''
+	Image_path = 'D:/RS_3/数据/LC08_123039_20211110.tif'
+	NDVI_path = "D:/RS_3/数据/NDVI.tif"
+	EVI_path = 'D:/RS_3/数据/EVI.tif'
+	SAVI_path = 'D:/RS_3/数据/SAVI.tif'
+	NDVI_calculte(Image_path, NDVI_path)
+	EVI_calculte(Image_path, EVI_path)
+	SAVI_calculte(Image_path, SAVI_path)

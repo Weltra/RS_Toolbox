@@ -1,53 +1,95 @@
 # -*- coding: utf-8 -*-
 """
 PROJECT_NAME: RS_Toolbox 
-FILE_NAME: get_value_by_lon_lat 
+FILE_NAME: get_value_by_location
 AUTHOR: welt 
 E_MAIL: tjlwelt@foxmail.com
 DATE: 2023/3/28 
 """
 
 from osgeo import gdal
-import os
 import pandas as pd
+from osgeo import osr
+import numpy as np
+import os
+import re
 
 
-def get_location_data(location, img_files):
-	f = img_files
-	print(f)
-	tif_name = os.path.basename(f).split('_')[0]
-	raster: gdal.Dataset = gdal.Open(f)
-	geotransform = raster.GetGeoTransform()
-	# 获取栅格影像的左上角起始坐标，像元大小
-	xOrigin = geotransform[0]
-	yOrigin = geotransform[3]
-	pixelWidth = geotransform[1]
-	pixelHeight = geotransform[5]
-	# 创建一个空的数组，把for循环里面得到的值放到这个数组里面
-	data = []
-	for index, row in location.iterrows():
-		long_value = row["X"]
-		lat_value = row["Y"]
-		print(lat_value)
-		print(yOrigin)
-		coord_x = long_value
-		coord_y = lat_value
-		# 主要思路就是计算该坐标与该tif起始坐标差了多少行和列
-		loc_x = int((float(coord_x) - xOrigin) / pixelWidth)
-		loc_y = int((float(coord_y) - yOrigin) / pixelHeight)
-		print(loc_y)
-		# 知道了多少行和列，就直接读这个行列对应数像元的数值大小，并把读到的数值追加到data这个空数组里面
-		data_value = raster.GetRasterBand(1).ReadAsArray(loc_x, loc_y, 1, 1)[0, 0]
-		data.append(data_value)
-	location['NDVI_' + tif_name] = data
-	print(location)
-	return location
+def get_file_info(file_path):
+	"""
+	获取文件的信息
+	:param file_path: 文件路径
+	:return: 数据集，地理坐标系，投影坐标系，范围，shape
+	"""
+	dataset = gdal.Open(file_path)
+	pcs = osr.SpatialReference()
+	pcs.ImportFromWkt(dataset.GetProjection())
+	gcs = pcs.CloneGeogCS()
+	extend = dataset.GetGeoTransform()
+	shape = (dataset.RasterXSize, dataset.RasterYSize)
+	return dataset, gcs, pcs, extend, shape
+
+
+def lonlat_to_xy(gcs, pcs, lon, lat):
+	"""
+	地理坐标系转投影坐标系
+	:param gcs: 地理坐标系
+	:param pcs: 投影坐标系
+	:param lon: 经度
+	:param lat: 纬度
+	:return: 投影坐标系坐标
+	"""
+	ct = osr.CoordinateTransformation(gcs, pcs)
+	coordinate = ct.TransformPoint(lon, lat)
+	return coordinate[0], coordinate[1], coordinate[2]
+
+
+def xy_to_rowcol(extend, x, y):
+	"""
+	投影坐标系转图上坐标系
+	:param extend: 范围
+	:param x: 投影坐标系x
+	:param y: 投影坐标系y
+	:return: 行号与列号
+	"""
+	a = np.array([[extend[1], extend[2]], [extend[4], extend[5]]])
+	b = np.array([x - extend[0], y - extend[3]])
+	row_col = np.linalg.solve(a, b)
+	row = int(np.float(row_col[1]))
+	col = int(np.float(row_col[0]))
+	return row, col
+
+
+def get_location_data(location, file_name):
+	"""
+	根据经纬度来取得相应位置的值
+	:param location: 经纬度坐标
+	:param file_name: 文件名
+	:return: 取得的值
+	"""
+	dataset, gcs, pcs, extend, shape = get_file_info(file_name)
+	img = dataset.ReadAsArray()
+	x, y, _i = lonlat_to_xy(gcs, pcs, location[0], location[1])
+	row, col = xy_to_rowcol(extend, x, y)
+	img_value = img[row, col]
+	return img_value
 
 
 if __name__ == '__main__':
-	excel_data = pd.read_excel(r'G:\0test\test\xj.xlsx')
-	test_tif = r'G:\0test\test\xj.tif'
-	out_data = get_location_data(excel_data, test_tif)
-	# 输出为另一个表格
-	xls_name = r'G:\0test\test\location_value.xlsx'
-	out_data.to_excel(xls_name)
+	loc = [-96.476639, 41.165056]
+	img_path = 'D:\Download\实验一\数据\MODIS'
+	resultPath = 'D:/result.xlsx'
+	filelist = os.listdir(img_path)
+	# 解析日期
+	pattern = re.compile(r'\d{4}\d{3}')
+	df = pd.DataFrame(columns=['date', 'value'])
+	for file in filelist:
+		(filename, extension) = os.path.splitext(file)
+		if extension == '.img':
+			date = pattern.findall(filename)
+			img_file = img_path + '/' + file
+			value = get_location_data(loc, img_file)
+			result = [date[0][-3:]+'/' + date[0][:-3], value]
+			df.loc[len(df.index)] = result
+	# 导出文件
+	df.to_excel(resultPath)

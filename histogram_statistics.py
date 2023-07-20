@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 通过GDAL读取栅格影像
-filename = "out_terlk.tif"
+filename = "D:/2023遥感综合实习/S2NDVI/20190123T031019_20190123T031920_T49RFP_ndvi.tif"
 dataset = gdal.Open(filename)
 im_width = dataset.RasterXSize
 im_height = dataset.RasterYSize
@@ -24,7 +24,7 @@ print(im_data.shape)
 data = []
 for i in range(im_data.shape[0]):
 	for j in range(im_data.shape[1]):
-		if im_data[i][j] > 0:
+		if im_data[i][j] > -9999:
 			data.append(im_data[i][j])
 data.sort()
 
@@ -40,13 +40,13 @@ print("最大值: ", data.max())
 # 根据影像中最大最小值设定坐标轴
 bins = np.linspace(data.min(), data.max(), 100)
 # 绘制直方图，设定直方图颜色
-plt.hist(data, bins, facecolor="blue")
+plt.hist(data, bins, facecolor="#80A2C4")
 # 横坐标轴名称
 plt.xlabel('像元值')
 # 纵坐标轴名称
 plt.ylabel('频数')
 # 图表头名称
-plt.title('灰度分布直方图')
+plt.title('使用Python计算的NDVI灰度分布直方图')
 # 显示中文字体
 plt.rcParams["font.sans-serif"] = ["SimHei"]
 plt.rcParams['axes.unicode_minus'] = False

@@ -42,7 +42,7 @@ def subtract_raster(DEM_standard_path, DEM_path, out_path):
 
 if __name__ == '__main__':
 	# 修改路径
-	Standard_DEM_Path = r"dem_standard.tif"  # 标准的DEM
-	MY_DEM_Path = r"Extract_terl.tif"  # 由点，线，TIN得到的DEM
-	OutTif = r"out_TIN.tif"
+	Standard_DEM_Path = r"1269.tif"  # 标准的DEM
+	MY_DEM_Path = r"DEM_test.tif"  # 由点，线，TIN得到的DEM
+	OutTif = r"out_sub1.tif"
 	subtract_raster(Standard_DEM_Path, MY_DEM_Path, OutTif)

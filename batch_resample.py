@@ -13,9 +13,9 @@ import numpy as np
 
 path = r"D:\RS_Toolbox"
 os.chdir(path)
-image_name = 'dem_grid.tif'
+image_name = '1269.tif'
 
-times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+times = [2, 4, 8]
 for time in times:
     in_ds = gdal.Open(image_name)
     geotrans = list(in_ds.GetGeoTransform())

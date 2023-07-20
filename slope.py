@@ -75,7 +75,7 @@ def Slope(DEMFilename, slopeFilename, aspectFilename):
 		print('Cannot open this file:' + DEMFilename)
 		sys.exit(1)
 
-	dx = 5  # 设置分辨率
+	dx = 30  # 设置分辨率
 
 	# 投影变换
 	projData = convertProjection(data, DEMFilename, dx)
@@ -138,7 +138,7 @@ def Slope(DEMFilename, slopeFilename, aspectFilename):
 
 
 if __name__ == '__main__':
-	DEMFilename = 'D:/RS_Toolbox/dem-grid.tif'
-	slopeFilename = 'D:/RS_Toolbox/Slope.tif'
-	aspectFilename = 'D:/RS_Toolbox/Aspect.tif'
+	DEMFilename = "D:\RS_3\数据\XianAn_DEM.tif"
+	slopeFilename = "D:\RS_3\数据\XianAn_DEM_Slope.tif"
+	aspectFilename = "D:\RS_3\数据\XianAn_DEM_Aspect.tif"
 	Slope(DEMFilename, slopeFilename, aspectFilename)
